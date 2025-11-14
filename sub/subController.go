@@ -130,6 +130,10 @@ func (a *SUBController) subs(c *gin.Context) {
 		a.ApplyCommonHeaders(c, header, a.updateInterval, a.subTitle)
 
 		if a.subEncrypt {
+			// Trim trailing newlines before encoding for compatibility with old Android clients
+			result = strings.TrimRight(result, "\n\r")
+			// Set Content-Type explicitly for base64 content to ensure compatibility with old clients like v2rayng
+			c.Header("Content-Type", "text/plain")
 			c.String(200, base64.StdEncoding.EncodeToString([]byte(result)))
 		} else {
 			c.String(200, result)
