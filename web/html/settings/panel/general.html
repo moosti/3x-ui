@@ -148,8 +148,15 @@
     </a-collapse-panel>
     <a-collapse-panel key="6" header='Subscription Defaults'>
         <a-setting-list-item paddings="small">
+            <template #title>Auto-detect Fingerprint from User Agent</template>
+            <template #description>Automatically detect device type (iOS/Android/Other) from User-Agent and set appropriate fingerprint (Safari for iOS, Chrome for Android, default for others)</template>
+            <template #control>
+                <a-switch v-model="allSetting.subAutoDetectFingerprint"></a-switch>
+            </template>
+        </a-setting-list-item>
+        <a-setting-list-item paddings="small">
             <template #title>Default Fingerprint for VLESS Links</template>
-            <template #description>Default uTLS fingerprint to use in VLESS subscription links when not specified in stream settings</template>
+            <template #description>Default uTLS fingerprint to use in VLESS subscription links when not specified in stream settings. Used when auto-detect is disabled or for non-iOS/Android devices.</template>
             <template #control>
                 <a-select :style="{ width: '100%' }" :dropdown-class-name="themeSwitcher.currentTheme"
                     v-model="allSetting.subDefaultFingerprint" allow-clear>

@@ -70,7 +70,8 @@ func (a *SUBController) initRouter(g *gin.RouterGroup) {
 func (a *SUBController) subs(c *gin.Context) {
 	subId := c.Param("subid")
 	scheme, host, hostWithPort, hostHeader := a.subService.ResolveRequest(c)
-	subs, lastOnline, traffic, err := a.subService.GetSubs(subId, host)
+	userAgent := c.GetHeader("User-Agent")
+	subs, lastOnline, traffic, err := a.subService.GetSubs(subId, host, userAgent)
 	if err != nil || len(subs) == 0 {
 		c.String(400, "Error!")
 	} else {
@@ -145,7 +146,8 @@ func (a *SUBController) subs(c *gin.Context) {
 func (a *SUBController) subJsons(c *gin.Context) {
 	subId := c.Param("subid")
 	_, host, _, _ := a.subService.ResolveRequest(c)
-	jsonSub, header, err := a.subJsonService.GetJson(subId, host)
+	userAgent := c.GetHeader("User-Agent")
+	jsonSub, header, err := a.subJsonService.GetJson(subId, host, userAgent)
 	if err != nil || len(jsonSub) == 0 {
 		c.String(400, "Error!")
 	} else {

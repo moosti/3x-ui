@@ -76,6 +76,7 @@ type AllSetting struct {
 	SubJsonMux                  string `json:"subJsonMux" form:"subJsonMux"`                                   // JSON subscription mux configuration
 	SubJsonRules                string `json:"subJsonRules" form:"subJsonRules"`
 	SubDefaultFingerprint       string `json:"subDefaultFingerprint" form:"subDefaultFingerprint"`             // Default fingerprint for VLESS subscription links
+	SubAutoDetectFingerprint    bool   `json:"subAutoDetectFingerprint" form:"subAutoDetectFingerprint"`       // Auto-detect fingerprint based on user agent
 
 	// LDAP settings
 	LdapEnable     bool   `json:"ldapEnable" form:"ldapEnable"`

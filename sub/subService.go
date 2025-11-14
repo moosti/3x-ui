@@ -33,13 +33,34 @@ type SubService struct {
 // NewSubService creates a new subscription service with the given configuration.
 func NewSubService(showInfo bool, remarkModel string) *SubService {
 	return &SubService{
-		showInfo:    showInfo,
-		remarkModel: remarkModel,
+		showInfo:       showInfo,
+		remarkModel:    remarkModel,
+		inboundService: service.InboundService{},
+		settingService: service.SettingService{},
 	}
 }
 
+// detectFingerprintFromUserAgent detects the appropriate fingerprint based on User-Agent string.
+// Returns "safari" for iOS devices, "chrome" for Android devices, or empty string for others.
+func detectFingerprintFromUserAgent(userAgent string) string {
+	ua := strings.ToLower(userAgent)
+
+	// Check for iOS devices (iPhone, iPad, iPod)
+	if strings.Contains(ua, "iphone") || strings.Contains(ua, "ipad") || strings.Contains(ua, "ipod") {
+		return "safari"
+	}
+
+	// Check for Android devices
+	if strings.Contains(ua, "android") {
+		return "chrome"
+	}
+
+	// For other devices, return empty string to use default
+	return ""
+}
+
 // GetSubs retrieves subscription links for a given subscription ID and host.
-func (s *SubService) GetSubs(subId string, host string) ([]string, int64, xray.ClientTraffic, error) {
+func (s *SubService) GetSubs(subId string, host string, userAgent string) ([]string, int64, xray.ClientTraffic, error) {
 	s.address = host
 	var result []string
 	var traffic xray.ClientTraffic
@@ -76,7 +97,7 @@ func (s *SubService) GetSubs(subId string, host string) ([]string, int64, xray.C
 		}
 		for _, client := range clients {
 			if client.Enable && client.SubID == subId {
-				link := s.getLink(inbound, client.Email)
+				link := s.getLink(inbound, client.Email, userAgent)
 				result = append(result, link)
 				ct := s.getClientTraffics(inbound.ClientStats, client.Email)
 				clientTraffics = append(clientTraffics, ct)
@@ -161,21 +182,21 @@ func (s *SubService) getFallbackMaster(dest string, streamSettings string) (stri
 	return inbound.Listen, inbound.Port, string(modifiedStream), nil
 }
 
-func (s *SubService) getLink(inbound *model.Inbound, email string) string {
+func (s *SubService) getLink(inbound *model.Inbound, email string, userAgent string) string {
 	switch inbound.Protocol {
 	case "vmess":
-		return s.genVmessLink(inbound, email)
+		return s.genVmessLink(inbound, email, userAgent)
 	case "vless":
-		return s.genVlessLink(inbound, email)
+		return s.genVlessLink(inbound, email, userAgent)
 	case "trojan":
-		return s.genTrojanLink(inbound, email)
+		return s.genTrojanLink(inbound, email, userAgent)
 	case "shadowsocks":
-		return s.genShadowsocksLink(inbound, email)
+		return s.genShadowsocksLink(inbound, email, userAgent)
 	}
 	return ""
 }
 
-func (s *SubService) genVmessLink(inbound *model.Inbound, email string) string {
+func (s *SubService) genVmessLink(inbound *model.Inbound, email string, userAgent string) string {
 	if inbound.Protocol != model.VMESS {
 		return ""
 	}
@@ -316,7 +337,7 @@ func (s *SubService) genVmessLink(inbound *model.Inbound, email string) string {
 	return "vmess://" + base64.StdEncoding.EncodeToString(jsonStr)
 }
 
-func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
+func (s *SubService) genVlessLink(inbound *model.Inbound, email string, userAgent string) string {
 	address := s.address
 	if inbound.Protocol != model.VLESS {
 		return ""
@@ -339,6 +360,15 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 
 	// Get default fingerprint from settings
 	defaultFingerprint, _ := s.settingService.GetSubDefaultFingerprint()
+
+	// Check if auto-detect is enabled
+	autoDetect, _ := s.settingService.GetSubAutoDetectFingerprint()
+	if autoDetect {
+		detectedFingerprint := detectFingerprintFromUserAgent(userAgent)
+		if detectedFingerprint != "" {
+			defaultFingerprint = detectedFingerprint
+		}
+	}
 
 	// Add encryption parameter for VLESS from inbound settings
 	var settings map[string]any
@@ -529,7 +559,7 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 	return url.String()
 }
 
-func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string {
+func (s *SubService) genTrojanLink(inbound *model.Inbound, email string, userAgent string) string {
 	address := s.address
 	if inbound.Protocol != model.Trojan {
 		return ""
@@ -725,7 +755,7 @@ func (s *SubService) genTrojanLink(inbound *model.Inbound, email string) string 
 	return url.String()
 }
 
-func (s *SubService) genShadowsocksLink(inbound *model.Inbound, email string) string {
+func (s *SubService) genShadowsocksLink(inbound *model.Inbound, email string, userAgent string) string {
 	address := s.address
 	if inbound.Protocol != model.Shadowsocks {
 		return ""

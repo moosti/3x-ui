@@ -70,6 +70,7 @@ var defaultValueMap = map[string]string{
 	"subJsonMux":                  "",
 	"subJsonRules":                "",
 	"subDefaultFingerprint":       "",
+	"subAutoDetectFingerprint":    "false",
 	"datepicker":                  "gregorian",
 	"warp":                        "",
 	"externalTrafficInformEnable": "false",
@@ -538,6 +539,10 @@ func (s *SettingService) GetSubJsonRules() (string, error) {
 
 func (s *SettingService) GetSubDefaultFingerprint() (string, error) {
 	return s.getString("subDefaultFingerprint")
+}
+
+func (s *SettingService) GetSubAutoDetectFingerprint() (bool, error) {
+	return s.getBool("subAutoDetectFingerprint")
 }
 
 func (s *SettingService) GetDatepicker() (string, error) {

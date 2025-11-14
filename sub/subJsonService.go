@@ -70,7 +70,7 @@ func NewSubJsonService(fragment string, noises string, mux string, rules string,
 }
 
 // GetJson generates a JSON subscription configuration for the given subscription ID and host.
-func (s *SubJsonService) GetJson(subId string, host string) (string, string, error) {
+func (s *SubJsonService) GetJson(subId string, host string, userAgent string) (string, string, error) {
 	inbounds, err := s.SubService.getInboundsBySubId(subId)
 	if err != nil || len(inbounds) == 0 {
 		return "", "", err
@@ -102,7 +102,7 @@ func (s *SubJsonService) GetJson(subId string, host string) (string, string, err
 		for _, client := range clients {
 			if client.Enable && client.SubID == subId {
 				clientTraffics = append(clientTraffics, s.SubService.getClientTraffics(inbound.ClientStats, client.Email))
-				newConfigs := s.getConfig(inbound, client, host)
+				newConfigs := s.getConfig(inbound, client, host, userAgent)
 				configArray = append(configArray, newConfigs...)
 			}
 		}
@@ -147,9 +147,9 @@ func (s *SubJsonService) GetJson(subId string, host string) (string, string, err
 	return string(finalJson), header, nil
 }
 
-func (s *SubJsonService) getConfig(inbound *model.Inbound, client model.Client, host string) []json_util.RawMessage {
+func (s *SubJsonService) getConfig(inbound *model.Inbound, client model.Client, host string, userAgent string) []json_util.RawMessage {
 	var newJsonArray []json_util.RawMessage
-	stream := s.streamData(inbound.StreamSettings)
+	stream := s.streamData(inbound.StreamSettings, userAgent)
 
 	externalProxies, ok := stream["externalProxy"].([]any)
 	if !ok || len(externalProxies) == 0 {
@@ -210,15 +210,15 @@ func (s *SubJsonService) getConfig(inbound *model.Inbound, client model.Client, 
 	return newJsonArray
 }
 
-func (s *SubJsonService) streamData(stream string) map[string]any {
+func (s *SubJsonService) streamData(stream string, userAgent string) map[string]any {
 	var streamSettings map[string]any
 	json.Unmarshal([]byte(stream), &streamSettings)
 	security, _ := streamSettings["security"].(string)
 	switch security {
 	case "tls":
-		streamSettings["tlsSettings"] = s.tlsData(streamSettings["tlsSettings"].(map[string]any))
+		streamSettings["tlsSettings"] = s.tlsData(streamSettings["tlsSettings"].(map[string]any), userAgent)
 	case "reality":
-		streamSettings["realitySettings"] = s.realityData(streamSettings["realitySettings"].(map[string]any))
+		streamSettings["realitySettings"] = s.realityData(streamSettings["realitySettings"].(map[string]any), userAgent)
 	}
 	delete(streamSettings, "sockopt")
 
@@ -247,7 +247,7 @@ func (s *SubJsonService) removeAcceptProxy(setting any) map[string]any {
 	return netSettings
 }
 
-func (s *SubJsonService) tlsData(tData map[string]any) map[string]any {
+func (s *SubJsonService) tlsData(tData map[string]any, userAgent string) map[string]any {
 	tlsData := make(map[string]any, 1)
 	tlsClientSettings, _ := tData["settings"].(map[string]any)
 
@@ -258,17 +258,66 @@ func (s *SubJsonService) tlsData(tData map[string]any) map[string]any {
 	}
 	if fingerprint, ok := tlsClientSettings["fingerprint"].(string); ok {
 		tlsData["fingerprint"] = fingerprint
+	} else {
+		// Check if auto-detect is enabled and no fingerprint is set
+		settingService := s.SubService.settingService
+		autoDetect, _ := settingService.GetSubAutoDetectFingerprint()
+		if autoDetect {
+			detectedFingerprint := detectFingerprintFromUserAgent(userAgent)
+			if detectedFingerprint != "" {
+				tlsData["fingerprint"] = detectedFingerprint
+			} else {
+				// Use default fingerprint if available
+				defaultFingerprint, _ := settingService.GetSubDefaultFingerprint()
+				if defaultFingerprint != "" {
+					tlsData["fingerprint"] = defaultFingerprint
+				}
+			}
+		} else {
+			// Use default fingerprint if auto-detect is disabled
+			defaultFingerprint, _ := settingService.GetSubDefaultFingerprint()
+			if defaultFingerprint != "" {
+				tlsData["fingerprint"] = defaultFingerprint
+			}
+		}
 	}
 	return tlsData
 }
 
-func (s *SubJsonService) realityData(rData map[string]any) map[string]any {
+func (s *SubJsonService) realityData(rData map[string]any, userAgent string) map[string]any {
 	rltyData := make(map[string]any, 1)
 	rltyClientSettings, _ := rData["settings"].(map[string]any)
 
 	rltyData["show"] = false
 	rltyData["publicKey"] = rltyClientSettings["publicKey"]
-	rltyData["fingerprint"] = rltyClientSettings["fingerprint"]
+	
+	// Handle fingerprint with auto-detect
+	if fingerprint, ok := rltyClientSettings["fingerprint"].(string); ok && fingerprint != "" {
+		rltyData["fingerprint"] = fingerprint
+	} else {
+		// Check if auto-detect is enabled and no fingerprint is set
+		settingService := s.SubService.settingService
+		autoDetect, _ := settingService.GetSubAutoDetectFingerprint()
+		if autoDetect {
+			detectedFingerprint := detectFingerprintFromUserAgent(userAgent)
+			if detectedFingerprint != "" {
+				rltyData["fingerprint"] = detectedFingerprint
+			} else {
+				// Use default fingerprint if available
+				defaultFingerprint, _ := settingService.GetSubDefaultFingerprint()
+				if defaultFingerprint != "" {
+					rltyData["fingerprint"] = defaultFingerprint
+				}
+			}
+		} else {
+			// Use default fingerprint if auto-detect is disabled
+			defaultFingerprint, _ := settingService.GetSubDefaultFingerprint()
+			if defaultFingerprint != "" {
+				rltyData["fingerprint"] = defaultFingerprint
+			}
+		}
+	}
+	
 	rltyData["mldsa65Verify"] = rltyClientSettings["mldsa65Verify"]
 
 	// Set random data
