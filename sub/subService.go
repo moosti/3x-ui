@@ -337,6 +337,9 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 	params := make(map[string]string)
 	params["type"] = streamNetwork
 
+	// Get default fingerprint from settings
+	defaultFingerprint, _ := s.settingService.GetSubDefaultFingerprint()
+
 	// Add encryption parameter for VLESS from inbound settings
 	var settings map[string]any
 	json.Unmarshal([]byte(inbound.Settings), &settings)
@@ -418,6 +421,8 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 		if tlsSetting != nil {
 			if fpValue, ok := searchKey(tlsSettings, "fingerprint"); ok {
 				params["fp"], _ = fpValue.(string)
+			} else if defaultFingerprint != "" {
+				params["fp"] = defaultFingerprint
 			}
 			if insecure, ok := searchKey(tlsSettings, "allowInsecure"); ok {
 				if insecure.(bool) {
@@ -451,6 +456,8 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string) string {
 				if fp, ok := fpValue.(string); ok && len(fp) > 0 {
 					params["fp"] = fp
 				}
+			} else if defaultFingerprint != "" {
+				params["fp"] = defaultFingerprint
 			}
 			if pqvValue, ok := searchKey(realitySettings, "mldsa65Verify"); ok {
 				if pqv, ok := pqvValue.(string); ok && len(pqv) > 0 {

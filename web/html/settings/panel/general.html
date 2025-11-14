@@ -146,7 +146,20 @@
             </template>
         </a-setting-list-item>
     </a-collapse-panel>
-    <a-collapse-panel key="6" header='LDAP'>
+    <a-collapse-panel key="6" header='Subscription Defaults'>
+        <a-setting-list-item paddings="small">
+            <template #title>Default Fingerprint for VLESS Links</template>
+            <template #description>Default uTLS fingerprint to use in VLESS subscription links when not specified in stream settings</template>
+            <template #control>
+                <a-select :style="{ width: '100%' }" :dropdown-class-name="themeSwitcher.currentTheme"
+                    v-model="allSetting.subDefaultFingerprint" allow-clear>
+                    <a-select-option value="">None</a-select-option>
+                    <a-select-option v-for="(value, key) in UTLS_FINGERPRINT" :value="value">[[ value ]]</a-select-option>
+                </a-select>
+            </template>
+        </a-setting-list-item>
+    </a-collapse-panel>
+    <a-collapse-panel key="7" header='LDAP'>
         <a-setting-list-item paddings="small">
             <template #title>Enable LDAP sync</template>
             <template #control>

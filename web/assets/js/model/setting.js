@@ -47,6 +47,7 @@ class AllSetting {
         this.subJsonNoises = "";
         this.subJsonMux = "";
         this.subJsonRules = "";
+        this.subDefaultFingerprint = "";
 
         this.timeLocation = "Local";
 
