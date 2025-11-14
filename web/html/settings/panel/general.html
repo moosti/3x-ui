@@ -165,6 +165,13 @@
                 </a-select>
             </template>
         </a-setting-list-item>
+        <a-setting-list-item paddings="small">
+            <template #title>Apply Default Fingerprint Always</template>
+            <template #description>Apply default fingerprint even when TLS settings are null. When enabled, the default fingerprint will be applied regardless of TLS configuration.</template>
+            <template #control>
+                <a-switch v-model="allSetting.subApplyDefaultFingerprintAlways"></a-switch>
+            </template>
+        </a-setting-list-item>
     </a-collapse-panel>
     <a-collapse-panel key="7" header='LDAP'>
         <a-setting-list-item paddings="small">

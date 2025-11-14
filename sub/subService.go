@@ -370,6 +370,9 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string, userAgen
 		}
 	}
 
+	// Get flag to apply default fingerprint even when TLS settings are null
+	applyDefaultFingerprintAlways, _ := s.settingService.GetSubApplyDefaultFingerprintAlways()
+
 	// Add encryption parameter for VLESS from inbound settings
 	var settings map[string]any
 	json.Unmarshal([]byte(inbound.Settings), &settings)
@@ -459,6 +462,9 @@ func (s *SubService) genVlessLink(inbound *model.Inbound, email string, userAgen
 					params["allowInsecure"] = "1"
 				}
 			}
+		} else if applyDefaultFingerprintAlways && defaultFingerprint != "" {
+			// Apply default fingerprint even when tlsSetting is null if flag is enabled
+			params["fp"] = defaultFingerprint
 		}
 
 		if streamNetwork == "tcp" && len(clients[clientIndex].Flow) > 0 {

@@ -49,6 +49,7 @@ class AllSetting {
         this.subJsonRules = "";
         this.subDefaultFingerprint = "";
         this.subAutoDetectFingerprint = false;
+        this.subApplyDefaultFingerprintAlways = false;
 
         this.timeLocation = "Local";
 

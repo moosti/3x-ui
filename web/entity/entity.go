@@ -54,29 +54,30 @@ type AllSetting struct {
 	TwoFactorToken  string `json:"twoFactorToken" form:"twoFactorToken"`   // Two-factor authentication token
 
 	// Subscription server settings
-	SubEnable                   bool   `json:"subEnable" form:"subEnable"`                                     // Enable subscription server
-	SubJsonEnable               bool   `json:"subJsonEnable" form:"subJsonEnable"`                             // Enable JSON subscription endpoint
-	SubTitle                    string `json:"subTitle" form:"subTitle"`                                       // Subscription title
-	SubListen                   string `json:"subListen" form:"subListen"`                                     // Subscription server listen IP
-	SubPort                     int    `json:"subPort" form:"subPort"`                                         // Subscription server port
-	SubPath                     string `json:"subPath" form:"subPath"`                                         // Base path for subscription URLs
-	SubDomain                   string `json:"subDomain" form:"subDomain"`                                     // Domain for subscription server validation
-	SubCertFile                 string `json:"subCertFile" form:"subCertFile"`                                 // SSL certificate file for subscription server
-	SubKeyFile                  string `json:"subKeyFile" form:"subKeyFile"`                                   // SSL private key file for subscription server
-	SubUpdates                  int    `json:"subUpdates" form:"subUpdates"`                                   // Subscription update interval in minutes
-	ExternalTrafficInformEnable bool   `json:"externalTrafficInformEnable" form:"externalTrafficInformEnable"` // Enable external traffic reporting
-	ExternalTrafficInformURI    string `json:"externalTrafficInformURI" form:"externalTrafficInformURI"`       // URI for external traffic reporting
-	SubEncrypt                  bool   `json:"subEncrypt" form:"subEncrypt"`                                   // Encrypt subscription responses
-	SubShowInfo                 bool   `json:"subShowInfo" form:"subShowInfo"`                                 // Show client information in subscriptions
-	SubURI                      string `json:"subURI" form:"subURI"`                                           // Subscription server URI
-	SubJsonPath                 string `json:"subJsonPath" form:"subJsonPath"`                                 // Path for JSON subscription endpoint
-	SubJsonURI                  string `json:"subJsonURI" form:"subJsonURI"`                                   // JSON subscription server URI
-	SubJsonFragment             string `json:"subJsonFragment" form:"subJsonFragment"`                         // JSON subscription fragment configuration
-	SubJsonNoises               string `json:"subJsonNoises" form:"subJsonNoises"`                             // JSON subscription noise configuration
-	SubJsonMux                  string `json:"subJsonMux" form:"subJsonMux"`                                   // JSON subscription mux configuration
-	SubJsonRules                string `json:"subJsonRules" form:"subJsonRules"`
-	SubDefaultFingerprint       string `json:"subDefaultFingerprint" form:"subDefaultFingerprint"`             // Default fingerprint for VLESS subscription links
-	SubAutoDetectFingerprint    bool   `json:"subAutoDetectFingerprint" form:"subAutoDetectFingerprint"`       // Auto-detect fingerprint based on user agent
+	SubEnable                        bool   `json:"subEnable" form:"subEnable"`                                     // Enable subscription server
+	SubJsonEnable                    bool   `json:"subJsonEnable" form:"subJsonEnable"`                             // Enable JSON subscription endpoint
+	SubTitle                         string `json:"subTitle" form:"subTitle"`                                       // Subscription title
+	SubListen                        string `json:"subListen" form:"subListen"`                                     // Subscription server listen IP
+	SubPort                          int    `json:"subPort" form:"subPort"`                                         // Subscription server port
+	SubPath                          string `json:"subPath" form:"subPath"`                                         // Base path for subscription URLs
+	SubDomain                        string `json:"subDomain" form:"subDomain"`                                     // Domain for subscription server validation
+	SubCertFile                      string `json:"subCertFile" form:"subCertFile"`                                 // SSL certificate file for subscription server
+	SubKeyFile                       string `json:"subKeyFile" form:"subKeyFile"`                                   // SSL private key file for subscription server
+	SubUpdates                       int    `json:"subUpdates" form:"subUpdates"`                                   // Subscription update interval in minutes
+	ExternalTrafficInformEnable      bool   `json:"externalTrafficInformEnable" form:"externalTrafficInformEnable"` // Enable external traffic reporting
+	ExternalTrafficInformURI         string `json:"externalTrafficInformURI" form:"externalTrafficInformURI"`       // URI for external traffic reporting
+	SubEncrypt                       bool   `json:"subEncrypt" form:"subEncrypt"`                                   // Encrypt subscription responses
+	SubShowInfo                      bool   `json:"subShowInfo" form:"subShowInfo"`                                 // Show client information in subscriptions
+	SubURI                           string `json:"subURI" form:"subURI"`                                           // Subscription server URI
+	SubJsonPath                      string `json:"subJsonPath" form:"subJsonPath"`                                 // Path for JSON subscription endpoint
+	SubJsonURI                       string `json:"subJsonURI" form:"subJsonURI"`                                   // JSON subscription server URI
+	SubJsonFragment                  string `json:"subJsonFragment" form:"subJsonFragment"`                         // JSON subscription fragment configuration
+	SubJsonNoises                    string `json:"subJsonNoises" form:"subJsonNoises"`                             // JSON subscription noise configuration
+	SubJsonMux                       string `json:"subJsonMux" form:"subJsonMux"`                                   // JSON subscription mux configuration
+	SubJsonRules                     string `json:"subJsonRules" form:"subJsonRules"`
+	SubDefaultFingerprint            string `json:"subDefaultFingerprint" form:"subDefaultFingerprint"`                       // Default fingerprint for VLESS subscription links
+	SubAutoDetectFingerprint         bool   `json:"subAutoDetectFingerprint" form:"subAutoDetectFingerprint"`                 // Auto-detect fingerprint based on user agent
+	SubApplyDefaultFingerprintAlways bool   `json:"subApplyDefaultFingerprintAlways" form:"subApplyDefaultFingerprintAlways"` // Apply default fingerprint even when TLS settings are null
 
 	// LDAP settings
 	LdapEnable     bool   `json:"ldapEnable" form:"ldapEnable"`
